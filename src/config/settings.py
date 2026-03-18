@@ -146,6 +146,7 @@ REST_AUTH = {
     # "JWT_AUTH_SECURE": True,
     #"USER_DETAILS_SERIALIZER": "accounts.serializers.CustomUserDetailsSerializer",
     "OLD_PASSWORD_FIELD_ENABLED": True,
+    'SESSION_LOGIN': False,
 }
 
 REST_FRAMEWORK = {
@@ -155,6 +156,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     #'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
