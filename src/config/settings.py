@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "dj_rest_auth",
     "accounts",
-    "short_url",
+    "short_url"
 ]
 
 MIDDLEWARE = [
@@ -85,13 +85,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-        "PORT": os.environ.get("DB_PORT"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
     }
 }
 
@@ -145,9 +145,9 @@ REST_AUTH = {
     "JWT_AUTH_HTTPONLY": True,
     # "JWT_AUTH_SAMESITE": "Lax"
     # "JWT_AUTH_SECURE": True,
-    # "USER_DETAILS_SERIALIZER": "accounts.serializers.CustomUserDetailsSerializer",
+    #"USER_DETAILS_SERIALIZER": "accounts.serializers.CustomUserDetailsSerializer",
     "OLD_PASSWORD_FIELD_ENABLED": True,
-    "SESSION_LOGIN": False,
+    'SESSION_LOGIN': False,
 }
 
 REST_FRAMEWORK = {
@@ -169,9 +169,9 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": os.environ.get("REDIS_URL"),
         "OPTIONS": {
             "db": "1",
-        },
+        }
     }
 }
