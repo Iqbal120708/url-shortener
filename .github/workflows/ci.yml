@@ -4,7 +4,32 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-lates
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DEBUG: "False"
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DB_NAME: testdb
+      DB_USER: testuser
+      DB_PASSWORD: testpass
+      DB_HOST: localhost
+      DB_PORT: 5432
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
