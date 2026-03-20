@@ -14,6 +14,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
+        working-directory: ./src
         run: python manage.py test
-      - name: formatting code
-        run: black . && isort .
+      - name: Check formatting
+        working-directory: ./src
+        run: |
+          black --check .
+          isort --check-only .
