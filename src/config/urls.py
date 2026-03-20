@@ -18,7 +18,8 @@ Including another URLconf
 from dj_rest_auth.urls import urlpatterns as dj_rest_auth_urls
 from dj_rest_auth.views import PasswordResetConfirmView
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+
 from accounts.views import RegisterView, VerifyView
 
 urlpatterns = [

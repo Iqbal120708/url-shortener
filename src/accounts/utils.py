@@ -1,12 +1,14 @@
 import secrets
 import string
-from .models import OTPVerifications
-from django.utils.timezone import now
 from datetime import timedelta
+
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.conf import settings
+from django.utils.timezone import now
+
+from .models import OTPVerifications
 
 
 def generate_otp(user, length=6):

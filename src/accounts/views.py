@@ -1,16 +1,18 @@
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.shortcuts import render
-from rest_framework.views import APIView
+from django.utils.timezone import now
 from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, OTPSerializer
-from django.contrib.auth import get_user_model
-from .utils import generate_otp, send_otp_email
+from rest_framework.views import APIView
+
 from config.json_resp import res_error
+
 from .models import OTPVerifications
-from django.db import transaction
-from rest_framework.exceptions import APIException
-from django.utils.timezone import now
+from .serializers import OTPSerializer, RegisterSerializer
+from .utils import generate_otp, send_otp_email
 
 User = get_user_model()
 

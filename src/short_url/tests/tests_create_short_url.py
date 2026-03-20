@@ -1,9 +1,11 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APITestCase
+
 from short_url.models import ShortUrl
-from unittest.mock import patch
-from django.core.cache import cache
 
 User = get_user_model()
 

@@ -1,8 +1,9 @@
+from django.db import IntegrityError, transaction
 from rest_framework import serializers
+from rest_framework.exceptions import APIException
+
 from .models import ShortUrl
 from .utils import generate_short_code
-from django.db import IntegrityError, transaction
-from rest_framework.exceptions import APIException
 
 
 class ShortUrlSerializer(serializers.ModelSerializer):
