@@ -34,4 +34,5 @@ urlpatterns = [
         VerifyView.as_view(),
         name="verify_otp",
     ),
+    path("api/short-urls/", include("short_url.urls")),
 ]
