@@ -1,7 +1,10 @@
 amqp==5.3.1
+anyio==4.12.1
 asgiref==3.11.1
 billiard==4.2.4
 black==26.3.1
+celery==5.6.2
+certifi==2026.2.25
 click==8.3.1
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
@@ -12,6 +15,11 @@ djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 dotenv==0.9.9
 freezegun==1.5.5
+gunicorn==25.1.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.11
 isort==8.0.1
 kombu==5.6.2
 mypy_extensions==1.1.0
@@ -29,5 +37,8 @@ six==1.17.0
 sqlparse==0.5.5
 tzdata==2025.3
 tzlocal==5.3.1
+ua-parser==1.0.1
+ua-parser-builtins==202603
+user-agents==2.2.0
 vine==5.1.0
 wcwidth==0.6.0

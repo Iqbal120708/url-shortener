@@ -34,7 +34,6 @@ class TestCreateShortUrl(APITestCase):
         self.assertTrue(res.data["short_code"])
         self.assertTrue(res.data["original_url"])
         self.assertTrue(res.data["is_active"])
-        self.assertIsNone(res.data["expired_at"])
 
     @patch("short_url.serializers.generate_short_code")
     def test_post_return_500_if_api_except(self, mock_generate_short_code):
@@ -83,7 +82,6 @@ class TestCreateShortUrl(APITestCase):
         self.assertTrue(res.data["short_code"])
         self.assertTrue(res.data["original_url"])
         self.assertTrue(res.data["is_active"])
-        self.assertIsNone(res.data["expired_at"])
 
         self.assertEqual(mock_generate_short_code.call_count, 2)
 

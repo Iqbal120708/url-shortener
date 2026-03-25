@@ -21,8 +21,16 @@ from django.contrib import admin
 from django.urls import include, path
 
 from accounts.views import RegisterView, VerifyView
+from short_url.views import RedirectToOriginal
+
+# from django.http import HttpResponse
+
+# def ping(request):
+#     return HttpResponse("pong")
+
 
 urlpatterns = [
+    # path("ping/", ping),
     path("admin/", admin.site.urls),
     path("api/auth/", include(dj_rest_auth_urls)),
     path(
@@ -36,4 +44,7 @@ urlpatterns = [
         name="verify_otp",
     ),
     path("api/short-urls/", include("short_url.urls")),
+    path(
+        "<str:short_code>/", RedirectToOriginal.as_view(), name="redirect_to_original"
+    ),
 ]
