@@ -2,9 +2,8 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import override_settings
+from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
-from django.test import TransactionTestCase
 from rest_framework.test import APIClient
 
 from short_url.models import ShortUrl
@@ -15,7 +14,7 @@ User = get_user_model()
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
 class TestRedirect(TransactionTestCase):
     reset_sequences = True
-    
+
     def setUp(self):
         cache.clear()
         self.client = APIClient()
