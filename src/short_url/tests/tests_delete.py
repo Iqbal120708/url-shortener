@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import override_settings
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from django.test import TransactionTestCase
+from rest_framework.test import APIClient
 
 from short_url.models import ShortUrl
 
@@ -12,9 +13,12 @@ User = get_user_model()
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
-class TestRedirect(APITestCase):
+class TestRedirect(TransactionTestCase):
+    reset_sequences = True
+    
     def setUp(self):
         cache.clear()
+        self.client = APIClient()
         self.user = User.objects.create_user(
             username="test", email="test@gmail.com", password="secret123"
         )
@@ -55,7 +59,7 @@ class TestRedirect(APITestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.data["detail"], "Short url not found.")
 
-    def test_short_url_cannot_be_used_after_delete(self):
+    def test_cannot_be_used_short_url_after_delete(self):
         self.client.force_authenticate(self.user)
 
         # redirect before delete
