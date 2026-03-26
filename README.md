@@ -16,7 +16,8 @@ A URL shortener REST API with click analytics, built with Django, DRF, PostgreSQ
 
 # Features
 
-- Manage short urls - list, create, and delete
+- Authentication and authorization with jwt
+- Manage short urls - list (`is_active` query param), get detail, create, and delete
 - implementation soft delete for short url
 - Redirect short url to original url
 
@@ -80,4 +81,3 @@ redis-server
 cd src
 python manage.py runserver
 ```
-

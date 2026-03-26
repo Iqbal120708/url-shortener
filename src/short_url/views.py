@@ -17,9 +17,15 @@ from .utils import generate_short_code
 # Create your views here.
 class ShortUrlView(APIView):
     def get(self, request):
+        extra_filter = {}
+
+        is_active = request.GET.get("is_active")
+        if is_active is not None:
+            extra_filter["is_active"] = is_active.lower() == "true"
+
         qs = (
             ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
-            .filter(user=request.user)
+            .filter(user=request.user, **extra_filter)
             .order_by("-id")
         )
 
@@ -74,6 +80,22 @@ class ShortUrlView(APIView):
         )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DetailShortUrlView(APIView):
+    def get(self, request, short_code):
+        short_url = (
+            ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
+            .filter(user=request.user, short_code=short_code)
+            .order_by("-id")
+            .first()
+        )
+
+        if not short_url:
+            return res_error("Short url not found.", status.HTTP_404_NOT_FOUND)
+
+        serializer = ShortUrlSerializer(short_url)
+        return Response(serializer.data)
 
 
 class RedirectToOriginal(APIView):
