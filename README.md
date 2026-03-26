@@ -55,6 +55,19 @@ pip install -r requirements.txt
 ```
 
 - Create a `.env` file and set the required variables.
+
+- Run database migrations
+```
+python manage.py migrate
+```
+
+- Run the redis server
+```
+redis-server
+```
+
+- Run the postgres server
+
 - Run the server
 ```
 python manage.py runserver
