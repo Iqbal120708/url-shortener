@@ -49,6 +49,12 @@ git clone https://github.com/Iqbal120708/url-shortener
 cd url-shortener
 ```
 
+- Run python environment
+```
+python -m venv env
+source env/bin/activate
+```
+
 - install dependencies
 ```
 pip install -r requirements.txt
@@ -58,6 +64,7 @@ pip install -r requirements.txt
 
 - Run database migrations
 ```
+cd src
 python manage.py migrate
 ```
 
@@ -70,6 +77,7 @@ redis-server
 
 - Run the server
 ```
+cd src
 python manage.py runserver
 ```
 
