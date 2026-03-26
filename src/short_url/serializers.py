@@ -9,7 +9,7 @@ from .utils import generate_short_code
 class ShortUrlSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShortUrl
-        fields = ["original_url", "short_code", "is_active"]
+        fields = ["id", "original_url", "short_code", "is_active"]
         read_only_fields = ["short_code", "is_active"]
 
     def create(self, validated_data):

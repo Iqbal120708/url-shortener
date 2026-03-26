@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +16,20 @@ from .utils import generate_short_code
 
 # Create your views here.
 class ShortUrlView(APIView):
+    def get(self, request):
+        qs = (
+            ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
+            .filter(user=request.user)
+            .order_by("-id")
+        )
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 100
+        result = paginator.paginate_queryset(qs, request)
+
+        serializer = ShortUrlSerializer(result, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
     def post(self, request):
         idempotency_key = request.headers.get("Idempotency-Key")
         if not idempotency_key:

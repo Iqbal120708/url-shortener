@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
-class TestRedirect(TransactionTestCase):
+class TestDelete(TransactionTestCase):
     reset_sequences = True
 
     def setUp(self):
