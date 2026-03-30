@@ -38,7 +38,7 @@ A URL shortener REST API with click analytics, built with Django, DRF, PostgreSQ
 
 # Performance
 
-- **Database indexing** – `short_code` field indexed for redirect lookup
+- **Database indexing** – `short_code` and `ip_address` fields indexed for redirect lookup
 - **Redis caching** – Redirect targets cached with 24-hour to reduce DB hits
 - **Async task click analytics** – Celery click tasks are executed asynchronously
 
