@@ -3,12 +3,12 @@ from celery import shared_task
 from user_agents import parse
 
 from .models import Click, ShortUrl
-
+from .utils import extract_domain
 
 def get_country(ip_address):
     try:
         response = httpx.get(f"http://ip-api.com/json/{ip_address}", timeout=3.0)
-        return response.json().get("country")
+        return response.json().get("countryCode")
     except Exception:
         return None
 
@@ -35,15 +35,16 @@ def track_click(short_url_id, ip_address, referer, user_agent):
         )
 
     if ip_address:
-        country = get_country(ip_address)
+        country_code = get_country(ip_address)
 
     Click.objects.create(
         short_url=short_url,
         ip_address=ip_address,
         user_agent=user_agent,
         referer=referer,
+        referer_domain=extract_domain(referer),
         browser=browser,
         os=os,
         device_type=device_type,
-        country=country,
+        country_code=country_code,
     )

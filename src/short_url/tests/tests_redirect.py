@@ -38,8 +38,13 @@ class TestRedirect(TransactionTestCase):
 
     @patch("short_url.views.cache.set")
     def test_redirect_return_302_if_from_database(self, mock_cache_set):
+        headers = {
+            "X-Forwarded-For": "180.241.0.1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+            "Referer": "https://google.com/search?q=example",
+        }
         with CaptureQueriesContext(connection) as ctx:
-            res = self.client.get(reverse("redirect_to_original", args=["abc1234"]))
+            res = self.client.get(reverse("redirect_to_original", args=["abc1234"]), headers=headers)
 
         queries = [q["sql"] for q in ctx.captured_queries]
         table_name = ShortUrl._meta.db_table
@@ -65,6 +70,17 @@ class TestRedirect(TransactionTestCase):
         )
 
         self.assertEqual(Click.objects.count(), 1)
+        
+        click = Click.objects.first()
+        self.assertEqual(click.ip_address, "180.241.0.1")
+        self.assertEqual(click.user_agent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36")
+        self.assertEqual(click.referer, "https://google.com/search?q=example")
+        self.assertEqual(click.referer_domain, "google.com")
+        self.assertEqual(click.browser, "Chrome")
+        self.assertEqual(click.os, "Windows")
+        self.assertEqual(click.device_type, "Desktop")
+        self.assertEqual(click.country_code, "ID")
+        
 
     @patch("short_url.views.cache.get")
     @patch("short_url.views.cache.set")
