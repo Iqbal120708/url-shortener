@@ -1,7 +1,8 @@
+from datetime import timedelta
+
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from datetime import timedelta
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -10,8 +11,8 @@ from rest_framework.views import APIView
 
 from config.json_resp import res_error
 
-from .models import ShortUrl, Click
-from .serializers import ShortUrlSerializer, ClickSerializer
+from .models import Click, ShortUrl
+from .serializers import ClickSerializer, ShortUrlSerializer
 from .tasks import track_click
 from .utils import generate_short_code, get_client_ip
 
@@ -20,11 +21,11 @@ from .utils import generate_short_code, get_client_ip
 class ShortUrlView(APIView):
     def get(self, request):
         extra_filter = {}
-        
+
         is_active = request.GET.get("is_active")
         if is_active is not None:
             extra_filter["is_active"] = is_active.lower() == "true"
-        
+
         qs = (
             ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
             .filter(user=request.user, **extra_filter)
@@ -70,7 +71,7 @@ class ShortUrlView(APIView):
             return res_error("Short url not found.", status.HTTP_404_NOT_FOUND)
         if not short_url.is_active:
             return Response(status=status.HTTP_204_NO_CONTENT)
-            
+
         short_url.soft_delete()
 
         cache.set(
@@ -84,7 +85,8 @@ class ShortUrlView(APIView):
         )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
+
 class DetailShortUrlView(APIView):
     def get(self, request, short_code):
         short_url = (
@@ -93,13 +95,14 @@ class DetailShortUrlView(APIView):
             .order_by("-id")
             .first()
         )
-        
+
         if not short_url:
             return res_error("Short url not found.", status.HTTP_404_NOT_FOUND)
-            
+
         serializer = ShortUrlSerializer(short_url)
         return Response(serializer.data)
-        
+
+
 class RedirectToOriginal(APIView):
     permission_classes = [AllowAny]
 
@@ -144,6 +147,7 @@ class RedirectToOriginal(APIView):
 
         return HttpResponseRedirect(original_url)
 
+
 class ClickAnalyticsView(APIView):
     def get(self, request, short_url_id):
         try:
@@ -152,20 +156,22 @@ class ClickAnalyticsView(APIView):
                 range = 90
         except ValueError:
             range = 7
-            
+
         try:
             top = int(request.GET.get("top", 3))
             if top > 10:
                 top = 10
         except ValueError:
             top = 3
-        
+
         short_url = ShortUrl.objects.filter(user=request.user, id=short_url_id).first()
         if not short_url:
             return res_error("Short url not found.", status.HTTP_404_NOT_FOUND)
-            
+
         range_time = timezone.now() - timedelta(days=range)
         clicks = Click.objects.filter(short_url=short_url, clicked_at__gte=range_time)
-        
-        serializer = ClickSerializer(clicks, context={"top": top, "short_url":short_url})
+
+        serializer = ClickSerializer(
+            clicks, context={"top": top, "short_url": short_url}
+        )
         return Response(serializer.data)

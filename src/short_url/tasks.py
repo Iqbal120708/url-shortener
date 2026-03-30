@@ -5,6 +5,7 @@ from user_agents import parse
 from .models import Click, ShortUrl
 from .utils import extract_domain
 
+
 def get_country(ip_address):
     try:
         response = httpx.get(f"http://ip-api.com/json/{ip_address}", timeout=3.0)

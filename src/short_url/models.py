@@ -31,7 +31,7 @@ class Click(models.Model):
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(null=True, blank=True)
     referer = models.URLField(max_length=2048, null=True, blank=True)
-    referer_domain = models.CharField(max_length=255) 
+    referer_domain = models.CharField(max_length=255)
     browser = models.CharField(max_length=100, null=True, blank=True)
     os = models.CharField(max_length=100, null=True, blank=True)
     device_type = models.CharField(max_length=50, null=True, blank=True)
@@ -44,7 +44,6 @@ class Click(models.Model):
             models.Index(fields=["short_url", "clicked_at", "device_type"]),
             models.Index(fields=["short_url", "clicked_at", "referer_domain"]),
         ]
-        
 
     def __str__(self):
         return f"Click on {self.short_url.short_code} at {self.clicked_at}"

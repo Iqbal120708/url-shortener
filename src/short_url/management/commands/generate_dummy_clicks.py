@@ -1,15 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-
-from short_url.models import ShortUrl, Click
-from short_url.utils import generate_short_code, extract_domain
-
 from user_agents import parse
+
+from short_url.models import Click, ShortUrl
+from short_url.utils import extract_domain, generate_short_code
 
 User = get_user_model()
 
-import requests
 import random
+
+import requests
 
 FAKE_IPS = [
     ["103.10.20.30", "ID"],
@@ -34,6 +34,7 @@ REFERERS = [
     "",
     "https://instagram.com",
 ]
+
 
 def generate_dummy_click(i, short_url):
     ip = random.choice(FAKE_IPS)
@@ -66,7 +67,8 @@ def generate_dummy_click(i, short_url):
         device_type=device_type,
         country_code=ip[1],
     )
-    
+
+
 class Command(BaseCommand):
     help = "Generate 100 rows clicks data"
 
@@ -82,11 +84,11 @@ class Command(BaseCommand):
             original_url="http://localhost:5000/api/v1/organizations/1/departments/3/employees/7/projects/42/tasks/108/comments",
             user=user,
         )
-        
+
         clicks = []
         for i in range(100):
             click = generate_dummy_click(i, short_url)
             clicks.append(click)
-        
+
         Click.objects.bulk_create(clicks)
         self.stdout.write("Successfully generate 100 rows data")
