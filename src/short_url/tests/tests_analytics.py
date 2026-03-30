@@ -1,12 +1,9 @@
-from unittest.mock import patch
-
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-# from django.test import TransactionTestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from short_url.models import Click, ShortUrl
+from short_url.models import ShortUrl
 
 User = get_user_model()
 
