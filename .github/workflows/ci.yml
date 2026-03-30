@@ -71,10 +71,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd /var/www/url-shortener/src
+            cd /var/www/url-shortener
             git pull
             source venv/bin/activate
             pip install -r requirements.txt
+            cd /src
             python manage.py migrate
             pkill gunicorn || true
             gunicorn --bind 127.0.0.1:8000 --workers 5 config.wsgi:application --daemon
