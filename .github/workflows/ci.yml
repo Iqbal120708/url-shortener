@@ -78,4 +78,4 @@ jobs:
             cd src
             python manage.py migrate
             python manage.py collectstatic --noinput
-            sudo systemctl restart gunicorn
+            sudo systemctl restart gunicorn && echo "Gunicorn restarted successfully" || exit 1
