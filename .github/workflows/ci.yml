@@ -77,5 +77,5 @@ jobs:
             pip install -r requirements.txt
             cd /src
             python manage.py migrate
-            pkill gunicorn || true
-            gunicorn --bind 127.0.0.1:8000 --workers 5 config.wsgi:application --daemon
+            python manage.py collectstatic --noinput
+            sudo systemcl restart gunicorn
