@@ -79,3 +79,4 @@ jobs:
             python manage.py migrate
             python manage.py collectstatic --noinput
             sudo systemctl restart gunicorn && echo "Gunicorn restarted successfully" || exit 1
+            sudo systemctl restart celery && echo "Celery restarted successfully" || exit 1
