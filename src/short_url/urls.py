@@ -1,7 +1,11 @@
 from django.urls import path
 
-from .views import (ClickAnalyticsView, DeleteShortUrlView, DetailShortUrlView,
-                    ShortUrlView)
+from .views import (
+    ClickAnalyticsView,
+    DeleteShortUrlView,
+    DetailShortUrlView,
+    ShortUrlView,
+)
 
 urlpatterns = [
     path("", ShortUrlView.as_view(), name="short_url"),

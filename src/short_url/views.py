@@ -12,9 +12,14 @@ from rest_framework.views import APIView
 from config.json_resp import res_error
 
 from .models import Click, ShortUrl
-from .schema import (analytics_short_url_schema, create_short_url_schema,
-                     delete_short_url_schema, detail_short_url_schema,
-                     list_short_url_schema, redirect_short_url_schema)
+from .schema import (
+    analytics_short_url_schema,
+    create_short_url_schema,
+    delete_short_url_schema,
+    detail_short_url_schema,
+    list_short_url_schema,
+    redirect_short_url_schema,
+)
 from .serializers import ClickSerializer, ShortUrlSerializer
 from .tasks import track_click
 from .utils import generate_short_code, get_client_ip

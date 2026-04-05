@@ -1,5 +1,9 @@
-from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
-                                   OpenApiResponse, extend_schema)
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+)
 
 from .serializers import OTPSerializer, RegisterSerializer
 

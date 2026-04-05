@@ -19,6 +19,11 @@ from dj_rest_auth.urls import urlpatterns as dj_rest_auth_urls
 from dj_rest_auth.views import PasswordResetConfirmView
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 from accounts.views import RegisterView, VerifyView
 from short_url.views import RedirectToOriginal
@@ -49,9 +54,6 @@ urlpatterns = [
     ),
 ]
 
-
-from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
-                                   SpectacularSwaggerView)
 
 urlpatterns += [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
