@@ -42,23 +42,23 @@ class ClickSerializer(serializers.Serializer):
     top_devices = serializers.SerializerMethodField()
     top_referers = serializers.SerializerMethodField()
 
-    def get_short_code(self, obj):
+    def get_short_code(self, obj) -> str:
         short_url = self.context.get("short_url")
         return short_url.short_code
 
-    def get_original_url(self, obj):
+    def get_original_url(self, obj) -> str:
         short_url = self.context.get("short_url")
         return short_url.original_url
 
-    def get_total_clicks(self, obj):
+    def get_total_clicks(self, obj) -> int:
         return obj.count()
 
-    def get_unique_clicks(self, obj):
+    def get_unique_clicks(self, obj) -> int:
         return obj.aggregate(unique_clicks=Count("ip_address", distinct=True))[
             "unique_clicks"
         ]
 
-    def get_clicks_per_day(self, obj):
+    def get_clicks_per_day(self, obj) -> list[dict]:
         return (
             obj.annotate(date=TruncDate("clicked_at"))
             .values("date")
@@ -66,7 +66,7 @@ class ClickSerializer(serializers.Serializer):
             .order_by("-date")
         )
 
-    def get_top_countries(self, obj):
+    def get_top_countries(self, obj) -> list[dict]:
         top = self.context.get("top")
         return (
             obj.values("country_code")
@@ -74,7 +74,7 @@ class ClickSerializer(serializers.Serializer):
             .order_by("-count")[:top]
         )
 
-    def get_top_devices(self, obj):
+    def get_top_devices(self, obj) -> list[dict]:
         top = self.context.get("top")
         return (
             obj.values("device_type")
@@ -82,7 +82,7 @@ class ClickSerializer(serializers.Serializer):
             .order_by("-count")[:top]
         )
 
-    def get_top_referers(self, obj):
+    def get_top_referers(self, obj) -> list[dict]:
         top = self.context.get("top")
         return (
             obj.values("referer_domain")

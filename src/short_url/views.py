@@ -12,6 +12,9 @@ from rest_framework.views import APIView
 from config.json_resp import res_error
 
 from .models import Click, ShortUrl
+from .schema import (analytics_short_url_schema, create_short_url_schema,
+                     delete_short_url_schema, detail_short_url_schema,
+                     list_short_url_schema, redirect_short_url_schema)
 from .serializers import ClickSerializer, ShortUrlSerializer
 from .tasks import track_click
 from .utils import generate_short_code, get_client_ip
@@ -19,6 +22,7 @@ from .utils import generate_short_code, get_client_ip
 
 # Create your views here.
 class ShortUrlView(APIView):
+    @list_short_url_schema
     def get(self, request):
         extra_filter = {}
 
@@ -39,6 +43,7 @@ class ShortUrlView(APIView):
         serializer = ShortUrlSerializer(result, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+    @create_short_url_schema
     def post(self, request):
         idempotency_key = request.headers.get("Idempotency-Key")
         if not idempotency_key:
@@ -65,6 +70,9 @@ class ShortUrlView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+class DeleteShortUrlView(APIView):
+    @delete_short_url_schema
     def delete(self, request, id):
         short_url = ShortUrl.objects.filter(id=id).first()
         if not short_url:
@@ -88,6 +96,7 @@ class ShortUrlView(APIView):
 
 
 class DetailShortUrlView(APIView):
+    @detail_short_url_schema
     def get(self, request, short_code):
         short_url = (
             ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
@@ -106,6 +115,7 @@ class DetailShortUrlView(APIView):
 class RedirectToOriginal(APIView):
     permission_classes = [AllowAny]
 
+    @redirect_short_url_schema
     def get(self, request, short_code):
         short_url = cache.get(f"shorturl:{short_code}")
         if short_url:
@@ -149,17 +159,22 @@ class RedirectToOriginal(APIView):
 
 
 class ClickAnalyticsView(APIView):
+    @analytics_short_url_schema
     def get(self, request, short_url_id):
         try:
             range = int(request.GET.get("range", 7))
-            if range > 90:
+            if range <= 0:
+                range = 1
+            elif range > 90:
                 range = 90
         except ValueError:
             range = 7
 
         try:
             top = int(request.GET.get("top", 3))
-            if top > 10:
+            if top <= 0:
+                top = 1
+            elif top > 10:
                 top = 10
         except ValueError:
             top = 3

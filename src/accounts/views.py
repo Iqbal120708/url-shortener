@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from config.json_resp import res_error
 
 from .models import OTPVerifications
+from .schema import register_schema, verify_schema
 from .serializers import OTPSerializer, RegisterSerializer
 from .utils import generate_otp, send_otp_email
 
@@ -21,6 +22,7 @@ User = get_user_model()
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
+    @register_schema
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -43,6 +45,7 @@ class RegisterView(APIView):
 class VerifyView(APIView):
     permission_classes = [AllowAny]
 
+    @verify_schema
     def post(self, request):
         serializer = OTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -81,3 +81,16 @@ redis-server
 cd src
 python manage.py runserver
 ```
+
+# API Documentation
+
+Explore the full API documentation by importing the schema file into [Swagger Editor](https://editor.swagger.io):
+
+- Download [`src/docs/schema.yml`](src/docs/schema.yml)
+- Open [editor.swagger.io](https://editor.swagger.io)
+- Click **File -> Import File** and select the downloaded file
+
+Or if you have the project running locally, access directly:
+
+- **Swagger UI**: `http://localhost:8000/api/docs/`
+- **Redoc**: `http://localhost:8000/api/redoc/`

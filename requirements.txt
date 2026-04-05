@@ -19,6 +19,7 @@ Django==6.0.3
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 dotenv==0.9.9
+drf-spectacular==0.29.0
 freezegun==1.5.5
 frozenlist==1.8.0
 gunicorn==25.1.0
@@ -26,7 +27,9 @@ h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
 idna==3.11
+inflection==0.5.1
 isort==8.0.1
+jsonschema==4.17.3
 kombu==5.6.2
 maxminddb==3.1.1
 multidict==6.7.1
@@ -38,9 +41,11 @@ prompt_toolkit==3.0.52
 propcache==0.4.1
 psycopg2-binary==2.9.11
 PyJWT==2.12.1
+pyrsistent==0.20.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 pytokens==0.4.1
+PyYAML==6.0.3
 redis==7.3.0
 requests==2.33.0
 six==1.17.0
@@ -49,6 +54,7 @@ tzdata==2025.3
 tzlocal==5.3.1
 ua-parser==1.0.1
 ua-parser-builtins==202603
+uritemplate==4.2.0
 urllib3==2.6.3
 user-agents==2.2.0
 vine==5.1.0
