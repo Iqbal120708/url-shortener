@@ -1,16 +1,27 @@
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient
 
 from short_url.models import ShortUrl
 
 User = get_user_model()
 
 
-class ThrottleTest(APITestCase):
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "throttle-test",
+        }
+    }
+)
+class ThrottleTest(TransactionTestCase):
     def setUp(self):
         cache.clear()
+        self.client = APIClient()
+        self.client = APIClient()
         self.user = User.objects.create_user(
             username="test", email="test@gmail.com", password="secret123"
         )
