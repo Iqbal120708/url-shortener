@@ -21,15 +21,15 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+      #redis:
+        #image: redis:7
+        #ports:
+          #- 6379:6379
+        #options: >-
+          #--health-cmd "redis-cli ping"
+          #--health-interval 10s
+          #--health-timeout 5s
+          #--health-retries 5
 
     env:
       DEBUG: "False"
@@ -39,7 +39,7 @@ jobs:
       DB_PASSWORD: testpass
       DB_HOST: localhost
       DB_PORT: 5432
-      REDIS_URL: redis://localhost:6379
+      #REDIS_URL: redis://localhost:6379
 
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +51,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run tests
         working-directory: ./src
-        run: python manage.py test
+        run: python manage.py test --settings=config.settings_test
       - name: Check formatting
         working-directory: ./src
         run: |

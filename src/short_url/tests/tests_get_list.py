@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import TransactionTestCase, override_settings
+from django.test import TransactionTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -13,7 +13,6 @@ from short_url.utils import generate_short_code
 User = get_user_model()
 
 
-@override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
 class TestGetList(TransactionTestCase):
     reset_sequences = True
 

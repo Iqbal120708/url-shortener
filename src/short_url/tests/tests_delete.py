@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import TransactionTestCase, override_settings
+from django.test import TransactionTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -11,7 +11,6 @@ from short_url.models import ShortUrl
 User = get_user_model()
 
 
-@override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
 class TestDelete(TransactionTestCase):
     reset_sequences = True
 
@@ -40,7 +39,7 @@ class TestDelete(TransactionTestCase):
         self.url.refresh_from_db()
         self.assertFalse(self.url.is_active)  # after delete
 
-        mock_cache_set.assert_called_once_with(
+        mock_cache_set.assert_any_call(
             "shorturl:abc1234",
             {
                 "id": 1,
@@ -48,7 +47,13 @@ class TestDelete(TransactionTestCase):
                 "is_active": False,
             },
             timeout=60 * 60 * 24,
-        )  # check is_active = False.
+        )  # check is_active = False
+
+        # Ensure only called 1x for key shorturl:abc1234
+        shorturl_calls = [
+            c for c in mock_cache_set.call_args_list if c.args[0] == "shorturl:abc1234"
+        ]
+        self.assertEqual(len(shorturl_calls), 1)
 
     def test_delete_return_404_if_short_url_not_found(self):
         self.client.force_authenticate(self.user)

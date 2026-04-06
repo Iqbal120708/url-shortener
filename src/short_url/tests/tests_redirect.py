@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db import connection
-from django.test import TransactionTestCase, override_settings
+from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -13,7 +13,6 @@ from short_url.models import Click, ShortUrl
 User = get_user_model()
 
 
-@override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
 class TestRedirect(TransactionTestCase):
     reset_sequences = True
 
@@ -61,7 +60,7 @@ class TestRedirect(TransactionTestCase):
             "https://www.google.com/search?q=django+rest+framework+tutorial&oq=django+rest+framework&aqs=chrome.0.69i59j69i57j69i60l3j69i65j69i60l2.2837j0j7&sourceid=chrome&ie=UTF-8",
         )
 
-        mock_cache_set.assert_called_once_with(
+        mock_cache_set.assert_any_call(
             "shorturl:abc1234",
             {
                 "id": 1,
@@ -70,6 +69,12 @@ class TestRedirect(TransactionTestCase):
             },
             timeout=60 * 60 * 24,
         )
+
+        # Ensure only called 1x for key shorturl:abc1234
+        shorturl_calls = [
+            c for c in mock_cache_set.call_args_list if c.args[0] == "shorturl:abc1234"
+        ]
+        self.assertEqual(len(shorturl_calls), 1)
 
         self.assertEqual(Click.objects.count(), 1)
 
@@ -89,11 +94,15 @@ class TestRedirect(TransactionTestCase):
     @patch("short_url.views.cache.get")
     @patch("short_url.views.cache.set")
     def test_redirect_return_302_if_from_cache(self, mock_cache_set, mock_cache_get):
-        mock_cache_get.return_value = {
-            "id": self.url.id,
-            "original_url": self.url.original_url,
-            "is_active": self.url.is_active,
-        }
+        mock_cache_get.side_effect = lambda key, default=None: (
+            {
+                "id": self.url.id,
+                "original_url": self.url.original_url,
+                "is_active": True,
+            }
+            if key == "shorturl:abc1234"
+            else default
+        )
 
         with CaptureQueriesContext(connection) as ctx:
             res = self.client.get(reverse("redirect_to_original", args=["abc1234"]))
@@ -111,8 +120,19 @@ class TestRedirect(TransactionTestCase):
             "https://www.google.com/search?q=django+rest+framework+tutorial&oq=django+rest+framework&aqs=chrome.0.69i59j69i57j69i60l3j69i65j69i60l2.2837j0j7&sourceid=chrome&ie=UTF-8",
         )
 
-        mock_cache_set.assert_not_called()
-        mock_cache_get.assert_called_once_with("shorturl:abc1234")
+        # Ensure cache.set is NOT called for key shorturl:abc1234
+        shorturl_calls = [
+            c for c in mock_cache_set.call_args_list if c.args[0] == "shorturl:abc1234"
+        ]
+        self.assertEqual(len(shorturl_calls), 0)
+
+        mock_cache_get.assert_any_call("shorturl:abc1234")
+
+        # Ensure only called 1x for key shorturl:abc1234
+        shorturl_calls = [
+            c for c in mock_cache_get.call_args_list if c.args[0] == "shorturl:abc1234"
+        ]
+        self.assertEqual(len(shorturl_calls), 1)
 
         self.assertEqual(Click.objects.count(), 1)
 
@@ -133,15 +153,25 @@ class TestRedirect(TransactionTestCase):
 
     @patch("short_url.views.cache.get")
     def test_redirect_return_404_if_cache_short_url_is_not_active(self, mock_cache_get):
-        mock_cache_get.return_value = {
-            "id": self.url.id,
-            "original_url": self.url.original_url,
-            "is_active": False,
-        }
+        mock_cache_get.side_effect = lambda key, default=None: (
+            {
+                "id": self.url.id,
+                "original_url": self.url.original_url,
+                "is_active": False,
+            }
+            if key == "shorturl:abc1234"
+            else default
+        )
 
         res = self.client.get(reverse("redirect_to_original", args=["abc1234"]))
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(res.data["detail"], "Short url is not active.")
 
-        mock_cache_get.assert_called_once_with("shorturl:abc1234")
+        mock_cache_get.assert_any_call("shorturl:abc1234")
+
+        # Ensure only called 1x for key shorturl:abc1234
+        shorturl_calls = [
+            c for c in mock_cache_get.call_args_list if c.args[0] == "shorturl:abc1234"
+        ]
+        self.assertEqual(len(shorturl_calls), 1)

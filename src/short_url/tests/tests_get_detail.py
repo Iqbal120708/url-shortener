@@ -11,7 +11,6 @@ from short_url.models import ShortUrl
 User = get_user_model()
 
 
-@override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
 class TestDelete(TransactionTestCase):
     reset_sequences = True
 
