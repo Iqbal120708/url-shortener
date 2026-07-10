@@ -23,18 +23,16 @@ def track_click(short_url_id, ip_address, referer, user_agent):
     browser = None
     os = None
     device_type = None
-    country = None
 
     if user_agent:
         ua = parse(user_agent)
-
-        # user_agent = ua_string
         browser = ua.browser.family
         os = ua.os.family
         device_type = (
             "Mobile" if ua.is_mobile else "Tablet" if ua.is_tablet else "Desktop"
         )
 
+    country_code = None
     if ip_address:
         country_code = get_country(ip_address)
 
