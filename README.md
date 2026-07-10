@@ -1,48 +1,51 @@
-# Url Shortener
+# URL Shortener API
 
-A URL shortener REST API with click analytics, built with Django, DRF, PostgreSQL, Celery, and Redis.
+A URL shortener with async click analytics. Not just short links — it tracks who clicked (device, browser, location) without slowing down the redirect. Clicks are logged in the background via Celery, so the redirect fires first.
 
-# Tech and Version
+## Highlights
 
-- Python 3.13
-- PostgreSQL 18.2
-- Redis 8.6.1
+- **Cache-first redirect** — short code lookup checks Redis first before hitting the database, with cache write-through on a miss (`RedirectToOriginal`). Redirects stay fast even under high click volume.
+- **Idempotency key on the create endpoint** — prevents duplicate short URLs on request retries (network timeouts, double-taps, etc.), using `cache.add()` as an atomic lock with a 60-second window.
+- **Async click tracking** — every click is dispatched to a Celery task (`track_click.delay()`) *after* the redirect response is sent, so the user isn't waiting on device/browser/geo logging.
+- **Three targeted composite indexes for analytics queries** — separate indexes on `(short_url, clicked_at, country_code)`, `(short_url, clicked_at, device_type)`, and `(short_url, clicked_at, referer_domain)`, each covering one filter dimension without the write overhead of a single wide index.
 
-# Framework and Liblary
+## Tech Stack
 
-- Django 6.0
-- Django Rest Framework 3.16
-- Celery 5.6
+**Backend:** Django 6.0 · Django REST Framework
+**Database:** PostgreSQL
+**Cache & Message Broker:** Redis
+**Async Task Queue:** Celery
+**Auth:** JWT (djangorestframework-simplejwt + dj-rest-auth)
+**API Docs:** drf-spectacular (OpenAPI/Swagger)
+**Deployment:** Gunicorn + Nginx (VPS)
+**External Integrations:** ip-api.com (geolocation), user-agents (device parsing)
 
-# Features
+## Architecture Decisions
 
-- Authentication and authorization with jwt
-- Manage short urls - list (`is_active` query param), get detail, create, and delete
-- implementation soft delete for short url
-- Redirect short url to original url
+**Why cache-first redirects instead of always hitting the database**
+Redirect is the highest-traffic, most latency-sensitive endpoint in this system — every click depends on it. Short URL lookups are cached in Redis with a 24-hour TTL, checked before any database query. On a cache miss, the result is written back to Redis so subsequent hits skip the database entirely.
 
-# Environment variables
+**Why idempotency keys instead of relying on a unique constraint alone**
+A unique constraint on `short_code` doesn't stop duplicate *creation* attempts from producing two different short URLs for the same request — e.g. a client retrying after a timeout. The `Idempotency-Key` header, combined with `cache.add()`'s atomic "set if not exists" behavior, gives a short (60-second) dedup window without needing a database-level lock.
 
-- `DEBUG=True`
-- `SECRET_KEY=your-secret-key`
-- `DB_NAME=postgres`
-- `DB_USER=user`
-- `DB_PASSWORD=password`
-- `DB_HOST=localhost`
-- `DB_PORT=5432`
-- `ALLOWED_HOSTS=localhost`
-- `EMAIL_HOST=smtp.gmail.com`
-- `EMAIL_HOST_USER=youremail@gmail.com`
-- `EMAIL_HOST_PASSWORD=abcdefghijklmnop`
-- `REDIS_URL=redis://localhost:6379/0`
+**Why click tracking is async instead of synchronous**
+Device parsing, geolocation lookup (external call to ip-api.com with a 3-second timeout), and the database write for analytics have no business blocking the redirect. `track_click.delay()` hands all of this off to Celery immediately after the redirect response is sent — the user never waits on analytics processing.
 
-# Performance
+**Why three separate indexes instead of one combined index**
+Analytics queries filter by `short_url` + `clicked_at` combined with *one* of country, device, or referer at a time — not all three together. Three targeted indexes, each covering a single dimension (`country_code`, `device_type`, `referer_domain`), keep queries fast without the write overhead of a single wide index covering columns that aren't always queried together.
 
-- **Database indexing** – `short_code` and `ip_address` fields indexed for redirect lookup
-- **Redis caching** – Redirect targets cached with 24-hour to reduce DB hits
-- **Async task click analytics** – Celery click tasks are executed asynchronously
+## Features
 
-# How to run
+- **Custom short URLs** — auto-generated short codes
+- **Cache-first redirect** — fast lookups via Redis, falls back to the database on a cache miss
+- **Click analytics** — device, browser, OS, country, and referer domain logged per click, exposed via a dedicated analytics endpoint
+- **Idempotency key** — prevents duplicate short URLs on request retries
+- **Soft delete** — short URLs can be deactivated without being removed from the database
+- **Email OTP verification** — user registration requires an OTP code sent by email before the account is activated
+- **JWT authentication** — login/token refresh via `dj-rest-auth` + `simplejwt`
+- **Interactive API docs** — Swagger UI and Redoc auto-generated from the OpenAPI schema (`drf-spectacular`)
+
+## How to run
 
 - clone the repo
 ```
@@ -61,7 +64,9 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-- Create a `.env` file and set the required variables.
+- Create a `.env` file and set the required variables (see .env.example).
+
+- Start PostgreSQL and Redis (via your system service manager, Docker, or manually depending on your setup)
 
 - Run database migrations
 ```
@@ -69,12 +74,10 @@ cd src
 python manage.py migrate
 ```
 
-- Run the redis server
+- Start the Celery worker (in a separate terminal, from the src/ directory)
 ```
-redis-server
+celery -A config worker --loglevel=info
 ```
-
-- Run the postgres server
 
 - Run the server
 ```
