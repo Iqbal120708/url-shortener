@@ -11,14 +11,14 @@ A URL shortener with async click analytics. Not just short links — it tracks w
 
 ## Tech Stack
 
-**Backend:** Django 6.0 · Django REST Framework
-**Database:** PostgreSQL
-**Cache & Message Broker:** Redis
-**Async Task Queue:** Celery
-**Auth:** JWT (djangorestframework-simplejwt + dj-rest-auth)
-**API Docs:** drf-spectacular (OpenAPI/Swagger)
-**Deployment:** Gunicorn + Nginx (VPS)
-**External Integrations:** ip-api.com (geolocation), user-agents (device parsing)
+- **Backend:** Django 6.0, Django REST Framework
+- **Database:** PostgreSQL
+- **Cache & Message Broker:** Redis
+- **Async Task Queue:** Celery
+- **Authentication:** JWT (djangorestframework-simplejwt + dj-rest-auth)
+- **API Documentation:** drf-spectacular (OpenAPI/Swagger)
+- **Deployment:** Gunicorn + Nginx (VPS)
+- **External Integrations:** ip-api.com (geolocation), user-agents (device parsing)
 
 ## Architecture Decisions
 
