@@ -24,7 +24,9 @@ class ThrottleTest(TransactionTestCase):
         self.client = APIClient()
         self.user = User.objects.create_user(
             first_name="first",
-            last_name="last",email="test@gmail.com", password="secret123"
+            last_name="last",
+            email="test@gmail.com",
+            password="secret123",
         )
 
         self.url = ShortUrl.objects.create(

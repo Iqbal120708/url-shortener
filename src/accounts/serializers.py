@@ -7,7 +7,7 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, min_length=8)
     password2 = serializers.CharField(label="Password Confirm", write_only=True)
-    #username = serializers.CharField(max_length=255)
+    # username = serializers.CharField(max_length=255)
     email = serializers.EmailField()
 
     class Meta:
@@ -57,6 +57,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         instance.set_password(validated_data["password1"])
         instance.save()
         return instance
+
 
 class OTPSerializer(serializers.Serializer):
     email = serializers.EmailField()

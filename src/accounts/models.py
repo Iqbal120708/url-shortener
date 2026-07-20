@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+
 class CustomUserQuerySet(models.QuerySet):
     def delete(self):
         raise RuntimeError("Gunakan soft_delete() atau hard_delete() per instance")
@@ -16,11 +17,12 @@ class CustomUserQuerySet(models.QuerySet):
 
     def hard_delete(self):
         return super().delete()
-        
+
+
 class UserManager(BaseUserManager):
     def get_queryset(self):
         return CustomUserQuerySet(self.model, using=self._db)
-        
+
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required.")
@@ -50,11 +52,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     objects = UserManager()
-    
+
     @property
     def username(self):
         return f"{self.first_name} {self.last_name}".title()
-        
+
     def __str__(self):
         return self.email
 
