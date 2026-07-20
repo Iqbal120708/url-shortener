@@ -28,7 +28,9 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
 
         user = User.objects.filter(email=serializer.validated_data["email"]).first()
-        if not user:
+        if user and not user.is_active:
+            user = serializer.update(user, serializer.validated_data)
+        elif not user:
             user = serializer.save()
 
         otp_code = generate_otp(user)
