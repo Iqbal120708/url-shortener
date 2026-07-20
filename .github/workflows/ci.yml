@@ -62,7 +62,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-
+    if: false
     steps:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.5
