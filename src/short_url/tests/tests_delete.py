@@ -18,7 +18,8 @@ class TestDelete(TransactionTestCase):
         cache.clear()
         self.client = APIClient()
         self.user = User.objects.create_user(
-            username="test", email="test@gmail.com", password="secret123"
+            first_name="first",
+            last_name="last",email="test@gmail.com", password="secret123"
         )
 
         self.url = ShortUrl.objects.create(

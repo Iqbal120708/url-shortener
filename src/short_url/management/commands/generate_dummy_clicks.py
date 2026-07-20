@@ -74,7 +74,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user = User.objects.create_user(
-            username="test dummy data",
+            first_name="first",
+            last_name="last",
             email="dummydata@gmail.com",
             password="secret1234",
         )

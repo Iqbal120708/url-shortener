@@ -14,7 +14,8 @@ class TestCreateShortUrl(APITestCase):
     def setUp(self):
         cache.clear()
         self.user = User.objects.create_user(
-            username="test", email="test@gmail.com", password="secret123"
+            first_name="first",
+            last_name="last", email="test@gmail.com", password="secret123"
         )
 
         self.form_data = {

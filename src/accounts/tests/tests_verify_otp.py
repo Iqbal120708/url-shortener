@@ -16,7 +16,8 @@ class TestVerifyOTP(APITestCase):
     def setUpTestData(cls):
         User = get_user_model()
         cls.user = User.objects.create_user(
-            username="test",
+            first_name="first",
+            last_name="last",
             email="test@gmail.com",
             password="secret123",
             is_active=False,

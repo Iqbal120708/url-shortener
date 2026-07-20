@@ -12,7 +12,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user = User.objects.create_user(
-            username="test dummy data",
+            first_name="first",
+            last_name="last",
             email="dummydata@gmail.com",
             password="secret1234",
         )
@@ -20,7 +21,7 @@ class Command(BaseCommand):
         data = [
             ShortUrl(
                 short_code=generate_short_code(),
-                original_url="http://localhost:5000/api/v1/organizations/1/departments/3/employees/7/projects/42/tasks/108/comments",
+                original_url="https://dev.to/iqbal120708/preventing-overselling-with-stock-reservation-and-selectforupdate-in-django-3jam",
                 user=user,
             )
             for _ in range(1_000_000)
