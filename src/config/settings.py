@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -64,6 +64,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'idempotency-key',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -153,10 +157,10 @@ SIMPLE_JWT = {
 
 REST_AUTH = {
     "USE_JWT": True,
-    "JWT_AUTH_REFRESH_COOKIE": "_refresh_token",
+    "JWT_AUTH_REFRESH_COOKIE": "refresh_token",
     "JWT_AUTH_HTTPONLY": True,
-    # "JWT_AUTH_SAMESITE": "Lax"
-    # "JWT_AUTH_SECURE": True,
+    "JWT_AUTH_SAMESITE": "Lax",
+    "JWT_AUTH_SECURE": not DEBUG,
     # "USER_DETAILS_SERIALIZER": "accounts.serializers.CustomUserDetailsSerializer",
     "OLD_PASSWORD_FIELD_ENABLED": True,
     "SESSION_LOGIN": False,
@@ -164,7 +168,7 @@ REST_AUTH = {
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",

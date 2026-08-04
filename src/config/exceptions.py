@@ -24,15 +24,3 @@ def custom_exception_handler(exc, context):
 
     return response
 
-
-# def error_response(detail=None, errors=None, status_code=status.HTTP_400_BAD_REQUEST):
-#     """
-#     - detail: pesan error umum (string)
-#     - errors: field-level errors (dict), e.g. {"cart_ids": ["..."]}
-#     """
-#     body = {}
-#     if detail:
-#         body["detail"] = detail
-#     if errors:
-#         body = errors
-#     return Response(body, status=status_code)
