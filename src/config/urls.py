@@ -25,7 +25,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from accounts.views import RegisterView, VerifyView
+from accounts.views import RegisterView, VerifyView, ResendOTPView
 from short_url.views import RedirectToOriginal
 
 # from django.http import HttpResponse
@@ -47,6 +47,11 @@ urlpatterns = [
         "api/auth/verify-otp/",
         VerifyView.as_view(),
         name="verify_otp",
+    ),
+    path(
+        "api/auth/resend-otp/",
+        ResendOTPView.as_view(),
+        name="resend_otp",
     ),
     path("api/short-urls/", include("short_url.urls")),
     path(

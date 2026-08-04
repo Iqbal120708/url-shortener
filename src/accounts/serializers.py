@@ -40,7 +40,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         if user and user.is_active:
             raise serializers.ValidationError(
-                "Email already registered.", code="unique"
+                "Email is already registered.", code="unique"
             )
 
         return value
@@ -59,12 +59,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return instance
 
 
+from rest_framework import serializers
+
+
 class OTPSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    otp_code = serializers.CharField(max_length=6)
+    token = serializers.CharField(max_length=64)
+    otp_code = serializers.CharField(max_length=6, min_length=6)
 
     def validate_otp_code(self, value):
         if not value.isdigit():
-            raise serializers.ValidationError("OTP harus berupa angka")
-
+            raise serializers.ValidationError("OTP code must be numeric.")
         return value
+        
+class ResendOTPSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=64)

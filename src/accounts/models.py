@@ -1,4 +1,5 @@
 import warnings
+import hashlib
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
@@ -73,24 +74,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class OTPVerifications(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    otp = models.CharField(max_length=6)
-    created_at = models.DateTimeField()
-    expired_at = models.DateTimeField()
-    is_used = models.BooleanField(default=False)
-
-    def clean(self):
-        if self.otp and not self.otp.isdigit():
-            raise ValidationError({"otp": _("Kode OTP harus berupa angka.")})
-
-        if self.created_at and self.expired_at:
-            if self.created_at > self.expired_at:
-                raise ValidationError(
-                    _("Waktu kedaluwarsa tidak boleh lebih awal dari waktu pembuatan.")
-                )
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
+    otp_hash = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.email} - {self.otp} - {self.is_used}"
+        status = "used" if self.used_at else "unused"
+        return f"{self.user.email} - {status} - {self.created_at}"
+
+    @staticmethod
+    def hash_otp(otp_code: str) -> str:
+        return hashlib.sha256(otp_code.encode()).hexdigest()

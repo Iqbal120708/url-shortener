@@ -1,7 +1,6 @@
 import secrets
-import string
 from datetime import timedelta
-
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -10,25 +9,60 @@ from django.utils.timezone import now
 
 from .models import OTPVerifications
 
+import json
+import time
+import redis
 
-def generate_otp(user, length=6):
-    characters = string.digits
-    otp = "".join(secrets.choice(characters) for _ in range(length))
+r = redis.Redis.from_url(settings.REDIS_URL)
 
-    # OTPVerifications.objects.filter(user=user, is_used=False).update(is_used=True)
+User = get_user_model()
 
-    created_at = now()
-    expired_at = created_at + timedelta(minutes=5)
-    OTPVerifications.objects.create(
+def generate_otp(user):
+    otp_code = f"{secrets.randbelow(1000000):06d}"
+    token = secrets.token_urlsafe(32)
+
+    # model dibuat dulu — cuma nyimpen hash, ini yang jadi log historis
+    otp_record = OTPVerifications.objects.create(
         user=user,
-        otp=otp,
-        created_at=created_at,
-        expired_at=expired_at,
+        otp_hash=OTPVerifications.hash_otp(otp_code),
     )
 
-    return otp
+    # Redis diisi setelah model ada — payload bawa referensi ke record-nya (record_id)
+    payload = {
+        "email": user.email,
+        "otp": otp_code,
+        "otp_created_at": time.time(),
+        "record_id": otp_record.id,
+    }
+    r.setex(f"otp:{token}", 1800, json.dumps(payload))
 
+    return token, otp_code  # token buat FE, otp_code buat dikirim ke email
 
+def resend_otp(token):
+    raw = r.get(f"otp:{token}")
+    if not raw:
+        return None  # sesi berakhir, FE arahkan register ulang
+
+    data = json.loads(raw)
+    otp_code = f"{secrets.randbelow(1000000):06d}"
+
+    # record lama ditandai unused tetap (tidak pernah dipakai), record baru dibuat buat OTP baru ini
+    user = User.objects.get(email=data["email"])
+    otp_record = OTPVerifications.objects.create(
+        user=user,
+        otp_hash=OTPVerifications.hash_otp(otp_code),
+    )
+
+    data.update({
+        "otp": otp_code,
+        "otp_created_at": time.time(),
+        "record_id": otp_record.id,
+    })
+    r.set(f"otp:{token}", json.dumps(data), keepttl=True)
+
+    return otp_code
+    
+    
 def send_otp_email(user_email, otp_code):
     subject = "Kode Verifikasi Akun"
     from_email = f"{settings.APP_NAME} <{settings.EMAIL_HOST_USER}>"
