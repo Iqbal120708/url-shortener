@@ -29,15 +29,9 @@ from .utils import generate_short_code, get_client_ip
 class ShortUrlView(APIView):
     @list_short_url_schema
     def get(self, request):
-        extra_filter = {}
-
-        is_active = request.GET.get("is_active")
-        if is_active is not None:
-            extra_filter["is_active"] = is_active.lower() == "true"
-
         qs = (
             ShortUrl.objects.only("id", "short_code", "original_url", "is_active")
-            .filter(user=request.user, **extra_filter)
+            .filter(user=request.user, is_active=True)
             .order_by("-id")
         )
 
