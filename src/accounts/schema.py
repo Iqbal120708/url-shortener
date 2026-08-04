@@ -78,7 +78,9 @@ verify_schema = extend_schema(
             examples=[
                 OpenApiExample(
                     "Locked out",
-                    value={"detail": "Too many failed attempts. Please request a new OTP."},
+                    value={
+                        "detail": "Too many failed attempts. Please request a new OTP."
+                    },
                     response_only=True,
                 ),
             ],
@@ -126,7 +128,9 @@ resend_schema = extend_schema(
             examples=[
                 OpenApiExample(
                     "Cooldown active",
-                    value={"detail": "Please wait 42 seconds before requesting a new OTP."},
+                    value={
+                        "detail": "Please wait 42 seconds before requesting a new OTP."
+                    },
                     response_only=True,
                 ),
                 OpenApiExample(

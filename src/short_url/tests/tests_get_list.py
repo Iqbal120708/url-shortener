@@ -40,7 +40,7 @@ class TestGetList(TransactionTestCase):
     def test_get_return_200_if_success(self):
         self.client.force_authenticate(self.user)
         res = self.client.get(reverse("short_url"))
-    
+
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data["count"], 150)
         self.assertEqual(len(res.data["results"]), 100)

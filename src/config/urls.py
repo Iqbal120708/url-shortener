@@ -25,7 +25,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from accounts.views import RegisterView, VerifyView, ResendOTPView
+from accounts.views import RegisterView, ResendOTPView, VerifyView
 from short_url.views import RedirectToOriginal
 
 # from django.http import HttpResponse

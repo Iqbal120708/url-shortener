@@ -1,7 +1,11 @@
+import json
 import secrets
+import time
 from datetime import timedelta
-from django.contrib.auth import get_user_model
+
+import redis
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -9,13 +13,10 @@ from django.utils.timezone import now
 
 from .models import OTPVerifications
 
-import json
-import time
-import redis
-
 r = redis.Redis.from_url(settings.REDIS_URL)
 
 User = get_user_model()
+
 
 def generate_otp(user):
     otp_code = f"{secrets.randbelow(1000000):06d}"
@@ -38,6 +39,7 @@ def generate_otp(user):
 
     return token, otp_code  # token buat FE, otp_code buat dikirim ke email
 
+
 def resend_otp(token):
     raw = r.get(f"otp:{token}")
     if not raw:
@@ -53,16 +55,18 @@ def resend_otp(token):
         otp_hash=OTPVerifications.hash_otp(otp_code),
     )
 
-    data.update({
-        "otp": otp_code,
-        "otp_created_at": time.time(),
-        "record_id": otp_record.id,
-    })
+    data.update(
+        {
+            "otp": otp_code,
+            "otp_created_at": time.time(),
+            "record_id": otp_record.id,
+        }
+    )
     r.set(f"otp:{token}", json.dumps(data), keepttl=True)
 
     return otp_code
-    
-    
+
+
 def send_otp_email(user_email, otp_code):
     subject = "Kode Verifikasi Akun"
     from_email = f"{settings.APP_NAME} <{settings.EMAIL_HOST_USER}>"

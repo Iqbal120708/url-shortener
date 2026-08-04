@@ -23,4 +23,3 @@ def custom_exception_handler(exc, context):
             response.data = {"detail": response.data[0]}
 
     return response
-

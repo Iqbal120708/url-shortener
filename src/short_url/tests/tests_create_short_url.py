@@ -93,25 +93,29 @@ class TestCreateShortUrl(APITestCase):
         self.client.credentials(
             HTTP_IDEMPOTENCY_KEY="550e8400-e29b-41d4-a716-446655440000"
         )
-    
+
         responses = []
         for _ in range(3):
             res = self.client.post(
                 reverse("short_url"), data=self.form_data, format="json"
             )
             responses.append(res)
-    
+
         # all request return 201
         self.assertEqual(responses[0].status_code, 201)
         self.assertEqual(responses[1].status_code, 201)
         self.assertEqual(responses[2].status_code, 201)
-    
+
         # only ONE ShortUrl is actually created in the database
         self.assertEqual(ShortUrl.objects.count(), 1)
-    
+
         # Second & third request body = replay of the first (exact same short_code)
-        self.assertEqual(responses[0].data["short_code"], responses[1].data["short_code"])
-        self.assertEqual(responses[0].data["short_code"], responses[2].data["short_code"])
+        self.assertEqual(
+            responses[0].data["short_code"], responses[1].data["short_code"]
+        )
+        self.assertEqual(
+            responses[0].data["short_code"], responses[2].data["short_code"]
+        )
 
     def test_post_return_400_idempotency_key_does_not_exist(self):
         self.client.force_authenticate(self.user)
@@ -142,40 +146,54 @@ class TestCreateShortUrl(APITestCase):
         )
 
     @patch("short_url.serializers.generate_short_code")
-    def test_post_retry_after_failure_with_same_key_succeeds(self, mock_generate_short_code):
+    def test_post_retry_after_failure_with_same_key_succeeds(
+        self, mock_generate_short_code
+    ):
         short_code = "mytest1"
         ShortUrl.objects.create(
             short_code=short_code,
             original_url=self.form_data["original_url"],
             user=self.user,
         )
-    
+
         self.client.force_authenticate(self.user)
         self.client.credentials(
             HTTP_IDEMPOTENCY_KEY="550e8400-e29b-41d4-a716-446655440000"
         )
-    
+
         # First attempt: failed continuously (5x collision) > 500, nothing cached
         mock_generate_short_code.return_value = short_code
-        res1 = self.client.post(reverse("short_url"), data=self.form_data, format="json")
+        res1 = self.client.post(
+            reverse("short_url"), data=self.form_data, format="json"
+        )
         self.assertEqual(res1.status_code, 500)
-    
+
         # Second attempt, SAME KEY, but now generate_short_code succeeds
         mock_generate_short_code.side_effect = ["abc9999"]
-        res2 = self.client.post(reverse("short_url"), data=self.form_data, format="json")
-    
+        res2 = self.client.post(
+            reverse("short_url"), data=self.form_data, format="json"
+        )
+
         self.assertEqual(res2.status_code, 201)
         self.assertEqual(ShortUrl.objects.count(), 2)
-        
+
     def test_post_different_keys_create_separate_urls(self):
         self.client.force_authenticate(self.user)
-    
-        self.client.credentials(HTTP_IDEMPOTENCY_KEY="550e8400-e29b-41d4-a716-446655440000")
-        res1 = self.client.post(reverse("short_url"), data=self.form_data, format="json")
-    
-        self.client.credentials(HTTP_IDEMPOTENCY_KEY="660e8400-e29b-41d4-a716-446655440001")
-        res2 = self.client.post(reverse("short_url"), data=self.form_data, format="json")
-    
+
+        self.client.credentials(
+            HTTP_IDEMPOTENCY_KEY="550e8400-e29b-41d4-a716-446655440000"
+        )
+        res1 = self.client.post(
+            reverse("short_url"), data=self.form_data, format="json"
+        )
+
+        self.client.credentials(
+            HTTP_IDEMPOTENCY_KEY="660e8400-e29b-41d4-a716-446655440001"
+        )
+        res2 = self.client.post(
+            reverse("short_url"), data=self.form_data, format="json"
+        )
+
         self.assertEqual(res1.status_code, 201)
         self.assertEqual(res2.status_code, 201)
         self.assertEqual(ShortUrl.objects.count(), 2)

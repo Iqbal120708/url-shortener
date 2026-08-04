@@ -77,6 +77,7 @@ class ShortUrlView(APIView):
         )
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+
 class DeleteShortUrlView(APIView):
     @delete_short_url_schema
     def delete(self, request, id):

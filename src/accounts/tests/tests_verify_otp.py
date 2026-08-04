@@ -94,7 +94,10 @@ class TestVerifyOTP(APITestCase):
 
         res = self.client.post(
             reverse("verify_otp"),
-            data={"token": self.token, "otp_code": "123456"},  # kode benar, tapi sudah lockout
+            data={
+                "token": self.token,
+                "otp_code": "123456",
+            },  # kode benar, tapi sudah lockout
         )
         self.assertEqual(res.status_code, 429)
         self.assertEqual(

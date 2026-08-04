@@ -71,16 +71,14 @@ class TestResendOTP(APITestCase):
 
         # record baru dibuat, record_id di payload ikut update
         self.assertNotEqual(data["record_id"], self.otp_record.id)
-        self.assertTrue(
-            OTPVerifications.objects.filter(id=data["record_id"]).exists()
-        )
+        self.assertTrue(OTPVerifications.objects.filter(id=data["record_id"]).exists())
 
         # otp_created_at ter-update jadi "sekarang"
         self.assertAlmostEqual(data["otp_created_at"], time.time(), delta=1)
 
     def test_ttl_not_reset_keepttl(self, mock_send_email):
         # sesi sudah berjalan 1000 detik dari TTL awal 1800 detik
-        fake_redis.expire(f"otp:{self.token}", 800) # sisa 800 detik (contoh)
+        fake_redis.expire(f"otp:{self.token}", 800)  # sisa 800 detik (contoh)
         ttl_before = fake_redis.ttl(f"otp:{self.token}")
 
         self.client.post(reverse("resend_otp"), data={"token": self.token})

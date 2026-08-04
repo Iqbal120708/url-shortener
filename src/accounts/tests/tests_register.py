@@ -72,7 +72,9 @@ class TestRegister(APITestCase):
 
         sent_email, sent_otp_code = mock_send_email.call_args[0]
         self.assertEqual(sent_email, self.user.email)
-        self.assertEqual(OTPVerifications.hash_otp(sent_otp_code), instance_otp.otp_hash)
+        self.assertEqual(
+            OTPVerifications.hash_otp(sent_otp_code), instance_otp.otp_hash
+        )
 
         raw = fake_redis.get(f"otp:{res.data['token']}")
         self.assertIsNotNone(raw)
@@ -115,7 +117,9 @@ class TestRegister(APITestCase):
 
         sent_email, sent_otp_code = mock_send_email.call_args[0]
         self.assertEqual(sent_email, "test2@gmail.com")
-        self.assertEqual(OTPVerifications.hash_otp(sent_otp_code), instance_otp.otp_hash)
+        self.assertEqual(
+            OTPVerifications.hash_otp(sent_otp_code), instance_otp.otp_hash
+        )
 
         raw = fake_redis.get(f"otp:{res.data['token']}")
         self.assertIsNotNone(raw)
@@ -125,7 +129,7 @@ class TestRegister(APITestCase):
         self.form_data["first_name"] = "fiesta"
         self.form_data["last_name"] = "dma"
         self.form_data["email"] = "test2@gmail.com"
-        
+
         # simulasikan sudah 5x register untuk email ini dalam window 3 jam
         fake_redis.set(f"register_count:{self.form_data['email']}", 5)
 

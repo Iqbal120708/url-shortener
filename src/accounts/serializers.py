@@ -70,6 +70,7 @@ class OTPSerializer(serializers.Serializer):
         if not value.isdigit():
             raise serializers.ValidationError("OTP code must be numeric.")
         return value
-        
+
+
 class ResendOTPSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=64)

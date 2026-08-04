@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 
@@ -67,7 +68,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'idempotency-key',
+    "idempotency-key",
 ]
 
 CORS_ALLOWED_ORIGINS = [

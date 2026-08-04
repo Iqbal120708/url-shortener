@@ -1,5 +1,5 @@
-import warnings
 import hashlib
+import warnings
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
