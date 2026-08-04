@@ -15,13 +15,6 @@ list_short_url_schema = extend_schema(
     description="Retrieve a paginated list of all short URLs belonging to the authenticated user.",
     parameters=[
         OpenApiParameter(
-            name="is_active",
-            type={"type": "boolean"},
-            location=OpenApiParameter.QUERY,
-            description="Filter URLs by active status. If not provided, returns all URLs.",
-            required=False,
-        ),
-        OpenApiParameter(
             name="page",
             type={"type": "integer", "minimum": 1},
             location=OpenApiParameter.QUERY,
@@ -47,7 +40,8 @@ create_short_url_schema = extend_schema(
             description=(
                 "Unique key to prevent duplicate requests. "
                 "Must be between 16 and 64 characters. "
-                "Example: my-unique-request-key-123"
+                "If the same key is sent again, the original response "
+                "is replayed instead of creating a duplicate record."
             ),
             required=True,
         ),
@@ -70,16 +64,6 @@ create_short_url_schema = extend_schema(
                     value={"detail": "Idempotency-Key header is required."},
                     response_only=True,
                 ),
-            ],
-        ),
-        429: OpenApiResponse(
-            description="Too Many Requests",
-            examples=[
-                OpenApiExample(
-                    "Idempotency-Key duplicate",
-                    value={"detail": "Duplicate request ignored."},
-                    response_only=True,
-                )
             ],
         ),
     },

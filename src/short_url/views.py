@@ -63,18 +63,25 @@ class ShortUrlView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        inserted = cache.add(f"idempotency:{idempotency_key}", True, timeout=60)
-        if not inserted:
-            return Response(
-                {"detail": "Duplicate request ignored."},
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
-            )
+        cache_key = f"idempotency:{idempotency_key}"
 
+        # Has been processed (successfully) replay the original results
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached["body"], status=cached["status"])
+
+        # Never, process as usual
         serializer = ShortUrlSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        response_data = serializer.data
+        cache.set(
+            cache_key,
+            {"status": status.HTTP_201_CREATED, "body": response_data},
+            timeout=60,
+        )
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 class DeleteShortUrlView(APIView):
     @delete_short_url_schema
