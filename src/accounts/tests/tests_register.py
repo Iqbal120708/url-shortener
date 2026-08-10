@@ -50,7 +50,7 @@ class TestRegister(APITestCase):
         res = self.client.post(reverse("register"), data=self.form_data)
         self.assertEqual(res.status_code, 400)
 
-    @patch("accounts.views.send_otp_email")
+    @patch("accounts.views.send_otp_email.delay")
     def test_user_exists_and_not_active(self, mock_send_email):
         self.user.is_active = False
         self.user.save()
@@ -89,7 +89,7 @@ class TestRegister(APITestCase):
         self.assertEqual(self.user.last_name, self.form_data["last_name"])
         self.assertTrue(self.user.check_password(self.form_data["password1"]))
 
-    @patch("accounts.views.send_otp_email")
+    @patch("accounts.views.send_otp_email.delay")
     def test_success(self, mock_send_email):
         self.form_data["first_name"] = "fiesta"
         self.form_data["last_name"] = "dma"
@@ -124,7 +124,7 @@ class TestRegister(APITestCase):
         raw = fake_redis.get(f"otp:{res.data['token']}")
         self.assertIsNotNone(raw)
 
-    @patch("accounts.views.send_otp_email")
+    @patch("accounts.views.send_otp_email.delay")
     def test_register_count_limit_reached(self, mock_send_email):
         self.form_data["first_name"] = "fiesta"
         self.form_data["last_name"] = "dma"
@@ -138,7 +138,7 @@ class TestRegister(APITestCase):
         self.assertEqual(res.status_code, 429)
         mock_send_email.assert_not_called()
 
-    @patch("accounts.views.send_otp_email")
+    @patch("accounts.views.send_otp_email.delay")
     def test_register_count_resets_after_window(self, mock_send_email):
         self.user.is_active = False
         self.user.save()

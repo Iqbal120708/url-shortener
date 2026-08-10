@@ -32,7 +32,7 @@ def _seed_otp_session(user, otp_code="123456", created_offset=0):
 @freeze_time("2026-02-24 10:00:00")
 @patch("accounts.views.r", fake_redis)
 @patch("accounts.utils.r", fake_redis)
-@patch("accounts.views.send_otp_email")
+@patch("accounts.views.send_otp_email.delay")
 class TestResendOTP(APITestCase):
     @classmethod
     def setUpTestData(cls):
