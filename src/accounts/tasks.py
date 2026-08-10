@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
 
+
 @shared_task
 def send_otp_email(user_email, otp_code):
     subject = "Kode Verifikasi Akun"

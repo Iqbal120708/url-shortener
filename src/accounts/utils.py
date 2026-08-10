@@ -61,5 +61,3 @@ def resend_otp(token):
     r.set(f"otp:{token}", json.dumps(data), keepttl=True)
 
     return otp_code
-
-

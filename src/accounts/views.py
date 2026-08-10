@@ -1,3 +1,8 @@
+import json
+import time
+
+import redis
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import render
@@ -7,16 +12,14 @@ from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.conf import settings
+
 from config.json_resp import res_error
-import json
-import time
+
 from .models import OTPVerifications
-from .schema import register_schema, verify_schema, resend_schema
+from .schema import register_schema, resend_schema, verify_schema
 from .serializers import OTPSerializer, RegisterSerializer, ResendOTPSerializer
-from .utils import generate_otp, resend_otp
 from .tasks import send_otp_email
-import redis
+from .utils import generate_otp, resend_otp
 
 r = redis.Redis.from_url(settings.REDIS_URL)
 
@@ -37,7 +40,7 @@ class RegisterView(APIView):
             user = serializer.update(user, serializer.validated_data)
         elif not user:
             user = serializer.save()
-        
+
         count_key = f"register_count:{user.email}"
         count = r.incr(count_key)
         if count == 1:
@@ -47,12 +50,13 @@ class RegisterView(APIView):
                 "Too many registration attempts. Please try again later.",
                 status.HTTP_429_TOO_MANY_REQUESTS,
             )
-    
+
         token, otp_code = generate_otp(user)
         send_otp_email.delay(user.email, otp_code)
 
         return Response({"token": token}, status=status.HTTP_200_OK)
-        
+
+
 class VerifyView(APIView):
     permission_classes = [AllowAny]
 
@@ -117,6 +121,7 @@ class VerifyView(APIView):
             {"message": "Account activated successfully! Please log in."},
             status=status.HTTP_200_OK,
         )
+
 
 class ResendOTPView(APIView):
     permission_classes = [AllowAny]
